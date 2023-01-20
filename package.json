@@ -1,16 +1,28 @@
 {
-  "dependencies": {
-    "@cosmjs/stargate": "0.28.11",
-    "protobufjs": "7.0.0"
-  },
-  "devDependencies": {
-    "@types/chai": "4.3.3",
-    "@types/dotenv": "8.2.0",
-    "@types/mocha": "9.1.1",
-    "@types/node": "18.7.5",
-    "chai": "4.3.6",
-    "dotenv": "16.0.1",
-    "mocha": "10.0.0",
-    "ts-node": "10.9.1"
-  }
+    "name": "cosmos-tutorial-checkers-ui",
+    "version": "1.0.0",
+    "description": "Client elements for the checkers blockchain based on https://github.com/cosmos/academy-checkers-ui.git",
+    "main": "index.js",
+    "scripts": {
+        "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha --require ts-node/register 'test/**/*.ts'"
+    },
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/srdtrk/cosmos-tutorial-checkers-ui.git"
+    },
+    "author": "srdtrk",
+    "dependencies": {
+        "@cosmjs/stargate": "0.28.11",
+        "protobufjs": "7.0.0"
+    },
+    "devDependencies": {
+        "@types/chai": "4.3.3",
+        "@types/dotenv": "8.2.0",
+        "@types/mocha": "9.1.1",
+        "@types/node": "18.7.5",
+        "chai": "4.3.6",
+        "dotenv": "16.0.1",
+        "mocha": "10.0.0",
+        "ts-node": "10.9.1"
+    }
 }
