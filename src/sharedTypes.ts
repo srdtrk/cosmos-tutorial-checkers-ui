@@ -2,9 +2,9 @@ export type Position = [number, number];
 export type NodeName = Position[];
 
 export interface IDirections {
-    1: IMoveVector[],
-    2: IMoveVector[],
-    [key: number]: IMoveVector[]
+    1: IMoveVector[];
+    2: IMoveVector[];
+    [key: number]: IMoveVector[];
 }
 
 export interface IGameInfo {
@@ -15,6 +15,7 @@ export interface IGameInfo {
     p1: IPlayerInfo;
     p2: IPlayerInfo;
     turn: number;
+    index?: number; // question mark is to prevent compilation errors from this new added field
 }
 
 export interface IMoveVector {
