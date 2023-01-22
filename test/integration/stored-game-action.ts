@@ -13,10 +13,12 @@ import {
     getCreatedGameId,
     getCreateGameEvent,
     getMovePlayedEvent,
+    getWinner,
 } from "../../src/types/checkers/events";
 import {
     completeGame,
     GameMove,
+    GamePiece,
     Player,
 } from "../../src/types/checkers/player";
 import { CheckersStargateClient } from "../../src/checkers_stargateclient";
@@ -261,6 +263,87 @@ describe("StoredGame Action", function () {
         expect(getCapturedPos(getMovePlayedEvent(logs[1])!)).to.deep.equal({
             x: 3,
             y: 4,
+        });
+    });
+
+    it("can conclude the game", async function () {
+        this.timeout(10_000);
+        const client: CheckersStargateClient =
+            await CheckersStargateClient.connect(RPC_URL);
+        const chainId: string = await client.getChainId();
+        const accountInfo = {
+            b: await getShortAccountInfo(alice),
+            r: await getShortAccountInfo(bob),
+        };
+        const txList: TxRaw[] = [];
+        let txIndex: number = 26;
+        while (txIndex < completeGame.length) {
+            const gameMove: GameMove = completeGame[txIndex];
+            txList.push(
+                await whoseClient(gameMove.player).sign(
+                    whoseAddress(gameMove.player),
+                    [
+                        {
+                            typeUrl: typeUrlMsgPlayMove,
+                            value: {
+                                creator: whoseAddress(gameMove.player),
+                                gameIndex: gameIndex,
+                                fromX: gameMove.from.x,
+                                fromY: gameMove.from.y,
+                                toX: gameMove.to.x,
+                                toY: gameMove.to.y,
+                            },
+                        },
+                    ],
+                    {
+                        amount: [{ denom: "stake", amount: "0" }],
+                        gas: "500000",
+                    },
+                    `playing move ${txIndex}`,
+                    {
+                        accountNumber:
+                            accountInfo[gameMove.player].accountNumber,
+                        sequence: accountInfo[gameMove.player].sequence++,
+                        chainId: chainId,
+                    }
+                )
+            );
+            txIndex++;
+        }
+
+        txIndex = 0;
+        while (txIndex < txList.length - 1) {
+            const txRaw: TxRaw = txList[txIndex];
+            await client.tmBroadcastTxSync(TxRaw.encode(txRaw).finish());
+            txIndex++;
+        }
+
+        const aliceBalBefore = parseInt(
+            (await client.getBalance(alice, "token")).amount,
+            10
+        );
+        const bobBalBefore = parseInt(
+            (await client.getBalance(bob, "token")).amount,
+            10
+        );
+        const lastDeliver: DeliverTxResponse = await client.broadcastTx(
+            TxRaw.encode(txList[txList.length - 1]).finish()
+        );
+        expect(
+            parseInt((await client.getBalance(alice, "token")).amount, 10)
+        ).to.be.equal(aliceBalBefore + 2);
+        expect(
+            parseInt((await client.getBalance(bob, "token")).amount, 10)
+        ).to.be.equal(bobBalBefore);
+
+        const logs: Log[] = JSON.parse(lastDeliver.rawLog!);
+        expect(logs).to.be.length(1);
+        const winner: GamePiece = getWinner(getMovePlayedEvent(logs[0])!)!;
+        expect(winner).to.be.equal("b");
+        const game: StoredGame = (await checkers.getStoredGame(gameIndex))!;
+        expect(game).to.include({
+            board: "", // Board has been deleted
+            winner: "b",
         });
     });
 });
