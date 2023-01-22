@@ -26,8 +26,12 @@ import { typeUrlMsgPlayMove } from "../../src/types/checkers/messages";
 import { TxRaw } from "cosmjs-types/cosmos/tx/v1beta1/tx";
 import { BroadcastTxSyncResponse } from "@cosmjs/tendermint-rpc";
 import { toHex } from "@cosmjs/encoding";
+import { config } from "dotenv";
+import { askFaucet } from "../../src/util/faucet";
 
-describe("StoredGame Action", function () {
+config();
+
+describe("StoredGame Action", async function () {
     const {
         RPC_URL,
         ADDRESS_TEST_ALICE: alice,
@@ -64,6 +68,33 @@ describe("StoredGame Action", function () {
             }
         );
         checkers = aliceClient.checkersQueryClient!.checkers;
+    });
+
+    const aliceCredit = {
+            stake: 100,
+            token: 1,
+        },
+        bobCredit = {
+            stake: 100,
+            token: 1,
+        };
+
+    before("credit test accounts", async function () {
+        this.timeout(10_000);
+        await askFaucet(alice, aliceCredit);
+        await askFaucet(bob, bobCredit);
+        expect(
+            parseInt((await aliceClient.getBalance(alice, "stake")).amount, 10)
+        ).to.be.greaterThanOrEqual(aliceCredit.stake);
+        expect(
+            parseInt((await aliceClient.getBalance(alice, "token")).amount, 10)
+        ).to.be.greaterThanOrEqual(aliceCredit.token);
+        expect(
+            parseInt((await bobClient.getBalance(bob, "stake")).amount, 10)
+        ).to.be.greaterThanOrEqual(bobCredit.stake);
+        expect(
+            parseInt((await bobClient.getBalance(bob, "token")).amount, 10)
+        ).to.be.greaterThanOrEqual(bobCredit.token);
     });
 
     // check that a game can be created with a wager:
