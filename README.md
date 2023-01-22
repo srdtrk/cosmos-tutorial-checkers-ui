@@ -1,6 +1,6 @@
 # react-checkers
 
-The classic game of Checkers built in [React](https://github.com/facebook/react).
+The classic game of Checkers built in [React](https://github.com/facebook/react). In this repo, we combine this ui with the blockchain backend and keplr.
 
 ## Contents
 
@@ -22,7 +22,7 @@ The purpose of creating this project was to learn the [React](https://github.com
 -   Save multiple games to Local Storage
 -   The ability to switch between several saved games
 -   Allows player names to be changed mid-game
--   The ability to make a player controled by an "AI"
+-   The ability to make a player controlled by an "AI"
 
 ## Upcoming Features
 
