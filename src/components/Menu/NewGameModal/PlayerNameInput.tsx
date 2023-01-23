@@ -18,7 +18,7 @@ export default class PlayerNameInput extends Component<
         super(props);
         this.state = {
             isValid: true,
-            name: `Player ${props.playerNumber}`
+            name: `Player ${props.playerNumber}`,
         };
         this.handleChange = this.handleChange.bind(this);
     }
@@ -29,8 +29,8 @@ export default class PlayerNameInput extends Component<
         return (
             <FormGroup>
                 <h2>
-                    Player {playerNumber}
-                    (<span className={`p${playerNumber}_name`}>{color}</span>)
+                    Player {playerNumber}(
+                    <span className={`p${playerNumber}_name`}>{color}</span>)
                 </h2>
                 <Label for={`p${playerNumber}Name`}>
                     Player {playerNumber}'s Name:
@@ -39,7 +39,7 @@ export default class PlayerNameInput extends Component<
                     type="text"
                     invalid={!this.state.isValid}
                     name={`p${playerNumber}Name`}
-                    maxLength={20}
+                    maxLength={45}
                     onChange={this.handleChange}
                     valid={this.state.isValid}
                     value={this.state.name}
@@ -55,7 +55,7 @@ export default class PlayerNameInput extends Component<
         const isValid = !(/<|>/g.test(newName) || newName.trim() === "");
         this.setState({
             isValid,
-            name: newName
+            name: newName,
         });
     }
 }
