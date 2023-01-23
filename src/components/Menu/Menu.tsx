@@ -14,6 +14,7 @@ interface IMenuProps {
     modalIsShown: boolean;
     openModal: () => void;
     showAlert: boolean;
+    rpcUrl: string;
 }
 
 const Menu = (props: IMenuProps) => {
@@ -63,7 +64,11 @@ const Menu = (props: IMenuProps) => {
                 Sorry, this browser does not support local storage. Please try
                 using a different browser.
             </Alert>
-            <NewGameModal shown={props.modalIsShown} close={props.closeModal} />
+            <NewGameModal
+                shown={props.modalIsShown}
+                close={props.closeModal}
+                rpcUrl={props.rpcUrl}
+            />
         </div>
     );
 };

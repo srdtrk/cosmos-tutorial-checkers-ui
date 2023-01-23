@@ -10,7 +10,7 @@ import {
     ModalBody,
     ModalFooter,
     ModalHeader,
-    Row
+    Row,
 } from "reactstrap";
 
 import { IGameInfo } from "../../../sharedTypes";
@@ -21,6 +21,7 @@ import PlayerNameInput from "./PlayerNameInput";
 interface INewGameModalProps {
     close: () => void;
     shown: boolean;
+    rpcUrl: string;
 }
 
 interface INewGameModalState {
@@ -35,7 +36,7 @@ export default class NewGameModal extends Component<
         color: "white",
         display: "block",
         height: "100%",
-        textDecoration: "none"
+        textDecoration: "none",
     };
     private readonly p1NameRef: React.RefObject<PlayerNameInput>;
     private readonly p2NameRef: React.RefObject<PlayerNameInput>;
@@ -45,7 +46,7 @@ export default class NewGameModal extends Component<
     public constructor(props: INewGameModalProps) {
         super(props);
         this.state = {
-            showAlert: false
+            showAlert: false,
         };
         this.p1NameRef = React.createRef();
         this.p2NameRef = React.createRef();
@@ -61,7 +62,8 @@ export default class NewGameModal extends Component<
                 isOpen={this.props.shown}
                 onExit={this.props.close}
                 size="lg"
-                tabIndex={-1}>
+                tabIndex={-1}
+            >
                 <ModalHeader toggle={this.props.close}>
                     Create A New Game
                 </ModalHeader>
@@ -105,10 +107,11 @@ export default class NewGameModal extends Component<
                     <Link
                         to={{
                             pathname: "/play/0",
-                            search: "?newGame=true"
+                            search: "?newGame=true",
                         }}
                         style={this.linkStyles}
-                        onClick={this.handleSubmit}>
+                        onClick={this.handleSubmit}
+                    >
                         <Button color="success" size="lg">
                             Play Game!
                         </Button>
@@ -128,14 +131,10 @@ export default class NewGameModal extends Component<
             this.p1AIRef.current &&
             this.p2AIRef.current
         ) {
-            const {
-                name: p1Name,
-                isValid: p1Valid
-            } = this.p1NameRef.current.state;
-            const {
-                name: p2Name,
-                isValid: p2Valid
-            } = this.p2NameRef.current.state;
+            const { name: p1Name, isValid: p1Valid } =
+                this.p1NameRef.current.state;
+            const { name: p2Name, isValid: p2Valid } =
+                this.p2NameRef.current.state;
 
             if (
                 this.p1AIRef.current.state.checked &&
@@ -163,14 +162,14 @@ export default class NewGameModal extends Component<
                     p1: {
                         is_ai: this.p1AIRef.current.state.checked,
                         name: p1Name,
-                        score: 0
+                        score: 0,
                     },
                     p2: {
                         is_ai: this.p2AIRef.current.state.checked,
                         name: p2Name,
-                        score: 0
+                        score: 0,
                     },
-                    turn: 1
+                    turn: 1,
                 };
                 const saved: IGameInfo[] = Lockr.get("saved_games") || [];
                 Lockr.set("saved_games", [info, ...saved]);
