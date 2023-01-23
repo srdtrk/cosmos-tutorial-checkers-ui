@@ -21,8 +21,8 @@ const Menu = (props: IMenuProps) => {
         <MenuItem
             deleteGame={props.deleteGame}
             info={game}
-            index={index}
-            key={"game" + index}
+            index={game.index!}
+            key={"game" + game.index}
         />
     ));
     return (
@@ -30,7 +30,8 @@ const Menu = (props: IMenuProps) => {
             <div style={{ height: "50px", marginBottom: "5px" }}>
                 <Link
                     to="/howtoplay"
-                    style={{ color: "white", textDecoration: "none" }}>
+                    style={{ color: "white", textDecoration: "none" }}
+                >
                     <Button color="info" size="lg" style={{ margin: "2px" }}>
                         How to Play
                     </Button>
@@ -39,12 +40,14 @@ const Menu = (props: IMenuProps) => {
                     color="success"
                     size="lg"
                     onClick={props.openModal}
-                    style={{ margin: "2px" }}>
+                    style={{ margin: "2px" }}
+                >
                     New Game <FontAwesome.FaPlus />
                 </Button>
             </div>
             <ListGroup
-                style={{ clear: "left", display: "block", height: "100%" }}>
+                style={{ clear: "left", display: "block", height: "100%" }}
+            >
                 {props.games.length === 0 && (
                     <ListGroupItem>
                         <h2 className="text-center">You have no saved games</h2>
@@ -55,7 +58,8 @@ const Menu = (props: IMenuProps) => {
             <Alert
                 color="warning"
                 isOpen={props.showAlert}
-                toggle={props.dismissAlert}>
+                toggle={props.dismissAlert}
+            >
                 Sorry, this browser does not support local storage. Please try
                 using a different browser.
             </Alert>
