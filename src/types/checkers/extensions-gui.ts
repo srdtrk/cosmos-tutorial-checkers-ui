@@ -1,11 +1,13 @@
 import Long from "long";
 import { CheckersStargateClient } from "src/checkers_stargateclient";
 import { IGameInfo } from "src/sharedTypes";
+import { StoredGame } from "../generated/checkers/stored_game";
 import { storedToGameInfo } from "./board";
 
 declare module "../../checkers_stargateclient" {
     interface CheckersStargateClient {
         getGuiGames(): Promise<IGameInfo[]>;
+        getGuiGame(index: string): Promise<IGameInfo | undefined>;
     }
 }
 
@@ -20,4 +22,13 @@ CheckersStargateClient.prototype.getGuiGames = async function (): Promise<
             true
         )
     ).storedGames.map(storedToGameInfo);
+};
+
+CheckersStargateClient.prototype.getGuiGame = async function (
+    index: string
+): Promise<IGameInfo | undefined> {
+    const storedGame: StoredGame | undefined =
+        await this.checkersQueryClient!.checkers.getStoredGame(index);
+    if (!storedGame) return undefined;
+    return storedToGameInfo(storedGame);
 };
