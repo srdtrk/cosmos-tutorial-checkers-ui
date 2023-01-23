@@ -9,6 +9,7 @@ import Menu from "./Menu";
 
 interface IMenuContainerProps {
     location?: any;
+    rpcUrl: string;
 }
 
 interface IMenuContainerState {
@@ -26,7 +27,7 @@ export default class MenuContainer extends Component<
         this.state = {
             saved: [],
             showAlert: false,
-            showModal: false
+            showModal: false,
         };
         this.closeModal = this.closeModal.bind(this);
         this.deleteGame = this.deleteGame.bind(this);
@@ -47,7 +48,7 @@ export default class MenuContainer extends Component<
         }
         // gameToLoad = null;
         this.setState({
-            saved: Lockr.get("saved_games") || []
+            saved: Lockr.get("saved_games") || [],
         });
     }
     /**
