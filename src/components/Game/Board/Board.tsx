@@ -13,9 +13,10 @@ interface IBoardProps {
 
 const Board = (props: IBoardProps) => {
     const style: CSSProperties = {
-        borderColor: props.turn === 1 ? "#444" : "red"
+        borderColor: props.turn === 1 ? "#444" : "red",
     };
     const squares: JSX.Element[] = [];
+    console.log(props.squares);
     props.squares.forEach((arr, row) => {
         arr.forEach((square, col) => {
             const isSelected = props.selected[`${row},${col}`] === true;
@@ -37,7 +38,8 @@ const Board = (props: IBoardProps) => {
             id="board"
             style={style}
             tabIndex={0}
-            onKeyPress={props.onKeyPress}>
+            onKeyPress={props.onKeyPress}
+        >
             {squares}
         </div>
     );
