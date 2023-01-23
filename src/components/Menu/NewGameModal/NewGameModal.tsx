@@ -12,11 +12,23 @@ import {
     ModalHeader,
     Row,
 } from "reactstrap";
+import { CheckersSigningStargateClient } from "src/checkers_signingstargateclient";
 
 import { IGameInfo } from "../../../sharedTypes";
 import "./NewGame.css";
 import PlayerAiCheckbox from "./PlayerAiCheckbox";
 import PlayerNameInput from "./PlayerNameInput";
+import { Window as KeplrWindow } from "@keplr-wallet/types";
+import {
+    checkersChainId,
+    getCheckersChainInfo,
+} from "src/types/checkers/chain";
+import { GasPrice } from "@cosmjs/stargate";
+import { OfflineSigner } from "@cosmjs/proto-signing";
+
+declare global {
+    interface Window extends KeplrWindow {}
+}
 
 interface INewGameModalProps {
     close: () => void;
@@ -26,6 +38,13 @@ interface INewGameModalProps {
 
 interface INewGameModalState {
     showAlert: boolean;
+    creator: string;
+    signingClient: CheckersSigningStargateClient | undefined;
+}
+
+interface CreatorInfo {
+    creator: string;
+    signingClient: CheckersSigningStargateClient;
 }
 
 export default class NewGameModal extends Component<
@@ -47,6 +66,8 @@ export default class NewGameModal extends Component<
         super(props);
         this.state = {
             showAlert: false,
+            creator: "",
+            signingClient: undefined,
         };
         this.p1NameRef = React.createRef();
         this.p2NameRef = React.createRef();
@@ -180,5 +201,32 @@ export default class NewGameModal extends Component<
         } else {
             event.preventDefault();
         }
+    }
+
+    protected async getSigningStargateClient(): Promise<CreatorInfo> {
+        if (this.state.creator && this.state.signingClient)
+            return {
+                creator: this.state.creator,
+                signingClient: this.state.signingClient,
+            };
+        const { keplr } = window;
+        if (!keplr) {
+            alert("You need to install Keplr");
+            throw new Error("You need to install Keplr");
+        }
+        await keplr.experimentalSuggestChain(getCheckersChainInfo());
+        const offlineSigner: OfflineSigner =
+            keplr.getOfflineSigner!(checkersChainId);
+        const creator = (await offlineSigner.getAccounts())[0].address;
+        const client: CheckersSigningStargateClient =
+            await CheckersSigningStargateClient.connectWithSigner(
+                this.props.rpcUrl,
+                offlineSigner,
+                {
+                    gasPrice: GasPrice.fromString("1stake"),
+                }
+            );
+        this.setState({ creator: creator, signingClient: client });
+        return { creator: creator, signingClient: client };
     }
 }
