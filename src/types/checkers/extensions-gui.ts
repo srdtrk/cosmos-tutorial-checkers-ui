@@ -4,14 +4,20 @@ import Long from "long";
 import { CheckersSigningStargateClient } from "src/checkers_signingstargateclient";
 import { CheckersStargateClient } from "src/checkers_stargateclient";
 import { IGameInfo } from "src/sharedTypes";
+import { QueryCanPlayMoveResponse } from "../generated/checkers/query";
 import { StoredGame } from "../generated/checkers/stored_game";
-import { storedToGameInfo } from "./board";
+import { guiPositionToPos, storedToGameInfo } from "./board";
 import { getCreatedGameId, getCreateGameEvent } from "./events";
 
 declare module "../../checkers_stargateclient" {
     interface CheckersStargateClient {
         getGuiGames(): Promise<IGameInfo[]>;
         getGuiGame(index: string): Promise<IGameInfo | undefined>;
+        canPlayGuiMove(
+            gameIndex: string,
+            playerId: number,
+            positions: number[][]
+        ): Promise<QueryCanPlayMoveResponse>;
     }
 }
 
@@ -35,6 +41,21 @@ CheckersStargateClient.prototype.getGuiGame = async function (
         await this.checkersQueryClient!.checkers.getStoredGame(index);
     if (!storedGame) return undefined;
     return storedToGameInfo(storedGame);
+};
+
+CheckersStargateClient.prototype.canPlayGuiMove = async function (
+    gameIndex: string,
+    playerId: number,
+    positions: number[][]
+): Promise<QueryCanPlayMoveResponse> {
+    if (playerId < 1 || 2 < playerId)
+        throw new Error(`Wrong playerId: ${playerId}`);
+    return await this.checkersQueryClient!.checkers.canPlayMove(
+        gameIndex,
+        playerId === 1 ? "b" : "r",
+        guiPositionToPos(positions[0]),
+        guiPositionToPos(positions[1])
+    );
 };
 
 declare module "../../checkers_signingstargateclient" {
