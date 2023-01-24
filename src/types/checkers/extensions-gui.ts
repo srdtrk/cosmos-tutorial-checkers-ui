@@ -7,7 +7,14 @@ import { IGameInfo } from "src/sharedTypes";
 import { QueryCanPlayMoveResponse } from "../generated/checkers/query";
 import { StoredGame } from "../generated/checkers/stored_game";
 import { guiPositionToPos, storedToGameInfo } from "./board";
-import { getCreatedGameId, getCreateGameEvent } from "./events";
+import {
+    getCapturedPos,
+    getCreatedGameId,
+    getCreateGameEvent,
+    getMovePlayedEvent,
+} from "./events";
+import { MsgPlayMoveEncodeObject, typeUrlMsgPlayMove } from "./messages";
+import { Pos } from "./player";
 
 declare module "../../checkers_stargateclient" {
     interface CheckersStargateClient {
@@ -65,6 +72,11 @@ declare module "../../checkers_signingstargateclient" {
             black: string,
             red: string
         ): Promise<string>;
+        playGuiMoves(
+            creator: string,
+            gameIndex: string,
+            positions: number[][]
+        ): Promise<(Pos | undefined)[]>;
     }
 }
 
@@ -83,4 +95,35 @@ CheckersSigningStargateClient.prototype.createGuiGame = async function (
     );
     const logs: Log[] = JSON.parse(result.rawLog!);
     return getCreatedGameId(getCreateGameEvent(logs[0])!);
+};
+
+CheckersSigningStargateClient.prototype.playGuiMoves = async function (
+    creator: string,
+    gameIndex: string,
+    positions: number[][]
+): Promise<(Pos | undefined)[]> {
+    const playMoveMsgList: MsgPlayMoveEncodeObject[] = positions
+        .slice(0, positions.length - 1)
+        .map((position: number[], index: number) => {
+            const from: Pos = guiPositionToPos(position);
+            const to: Pos = guiPositionToPos(positions[index + 1]);
+            return {
+                typeUrl: typeUrlMsgPlayMove,
+                value: {
+                    creator: creator,
+                    gameIndex: gameIndex,
+                    fromX: Long.fromNumber(from.x),
+                    fromY: Long.fromNumber(from.y),
+                    toX: Long.fromNumber(to.x),
+                    toY: Long.fromNumber(to.y),
+                },
+            };
+        });
+    const result: DeliverTxResponse = await this.signAndBroadcast(
+        creator,
+        playMoveMsgList,
+        "auto"
+    );
+    const logs: Log[] = JSON.parse(result.rawLog!);
+    return logs.map((log: Log) => getCapturedPos(getMovePlayedEvent(log)!));
 };
