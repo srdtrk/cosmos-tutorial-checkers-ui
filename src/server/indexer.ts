@@ -2,6 +2,12 @@ import { writeFile } from "fs/promises";
 import { Server } from "http";
 import express, { Express, Request, Response } from "express";
 import { DbType } from "./types";
+import { config } from "dotenv";
+import { CheckersStargateClient } from "../checkers_stargateclient";
+
+config();
+
+let client: CheckersStargateClient;
 
 export const createIndexer = async () => {
     const port = "3001";
@@ -51,11 +57,20 @@ export const createIndexer = async () => {
     };
 
     const init = async () => {
+        client = await CheckersStargateClient.connect(process.env.RPC_URL!);
+        console.log("Connected to chain-id:", await client.getChainId());
         setTimeout(poll, 1);
     };
 
     const poll = async () => {
-        console.log(new Date(Date.now()).toISOString(), "TODO poll");
+        const currentHeight = await client.getHeight();
+        console.log(
+            new Date(Date.now()).toISOString(),
+            "Current heights:",
+            db.status.block.height,
+            "<=",
+            currentHeight
+        );
         timer = setTimeout(poll, pollIntervalMs);
     };
 
