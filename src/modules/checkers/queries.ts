@@ -54,11 +54,15 @@ export function setupCheckersExtension(base: QueryClient): CheckersExtension {
             getStoredGame: async (
                 index: string
             ): Promise<StoredGame | undefined> => {
-                const response: QueryGetStoredGameResponse =
-                    await queryService.StoredGame({
-                        index: index,
-                    });
-                return response.storedGame;
+                try {
+                    const response: QueryGetStoredGameResponse =
+                        await queryService.StoredGame({
+                            index: index,
+                        });
+                    return response.storedGame;
+                } catch {
+                    return undefined;
+                }
             },
             getAllStoredGames: async (
                 key: Uint8Array,
