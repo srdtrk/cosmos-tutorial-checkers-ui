@@ -1,9 +1,57 @@
 {
     "status": {
         "block": {
-            "height": 0
+            "height": 8185
         }
     },
-    "players": {},
-    "games": {}
+    "players": {
+        "cosmos1fx6qlxwteeqxgxwsw83wkf4s9fcnnwk8z86sql": {
+            "gameIds": [
+                "3"
+            ]
+        },
+        "cosmos1mql9aaux3453tdghk6rzkmk43stxvnvha4nv22": {
+            "gameIds": [
+                "3"
+            ]
+        },
+        "cosmos1vdyyaj9cf2freghy4q0857x0rvuvqm32tdc5pl": {
+            "gameIds": [
+                "4",
+                "5"
+            ]
+        },
+        "cosmos1zwwx9ldrxtwwlr7fzavttvlw9hkmenjnc0d3p8": {
+            "gameIds": [
+                "4"
+            ]
+        }
+    },
+    "games": {
+        "1": {
+            "redAddress": "cosmos1mql9aaux3453tdghk6rzkmk43stxvnvha4nv22",
+            "blackAddress": "cosmos1fx6qlxwteeqxgxwsw83wkf4s9fcnnwk8z86sql",
+            "deleted": false
+        },
+        "2": {
+            "redAddress": "cosmos1mql9aaux3453tdghk6rzkmk43stxvnvha4nv22",
+            "blackAddress": "cosmos1fx6qlxwteeqxgxwsw83wkf4s9fcnnwk8z86sql",
+            "deleted": false
+        },
+        "3": {
+            "redAddress": "cosmos1mql9aaux3453tdghk6rzkmk43stxvnvha4nv22",
+            "blackAddress": "cosmos1fx6qlxwteeqxgxwsw83wkf4s9fcnnwk8z86sql",
+            "deleted": false
+        },
+        "4": {
+            "redAddress": "cosmos1zwwx9ldrxtwwlr7fzavttvlw9hkmenjnc0d3p8",
+            "blackAddress": "cosmos1vdyyaj9cf2freghy4q0857x0rvuvqm32tdc5pl",
+            "deleted": false
+        },
+        "5": {
+            "redAddress": "cosmos1vdyyaj9cf2freghy4q0857x0rvuvqm32tdc5pl",
+            "blackAddress": "cosmos1vdyyaj9cf2freghy4q0857x0rvuvqm32tdc5pl",
+            "deleted": false
+        }
+    }
 }
