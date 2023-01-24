@@ -9,6 +9,13 @@ import ScoreBar from "./BoardMenu/ScoreBar";
 import GameOverModal from "./GameOverModal";
 import {} from "../../types/checkers/extensions-gui";
 import { CheckersStargateClient } from "src/checkers_stargateclient";
+import { CheckersSigningStargateClient } from "src/checkers_signingstargateclient";
+import {
+    checkersChainId,
+    getCheckersChainInfo,
+} from "src/types/checkers/chain";
+import { GasPrice } from "@cosmjs/stargate";
+import { OfflineSigner } from "@cosmjs/proto-signing";
 
 interface IGameContainerProps {
     location: any;
@@ -29,6 +36,13 @@ interface IGameContainerState {
     };
     [key: string]: any;
     client: CheckersStargateClient | undefined;
+    creator: string;
+    signingClient: CheckersSigningStargateClient | undefined;
+}
+
+interface CreatorInfo {
+    creator: string;
+    signingClient: CheckersSigningStargateClient;
 }
 
 export default class GameContainer extends Component<
@@ -53,6 +67,8 @@ export default class GameContainer extends Component<
         },
         selected: {},
         client: undefined,
+        creator: "",
+        signingClient: undefined,
     };
     constructor(props: IGameContainerProps) {
         super(props);
@@ -293,5 +309,32 @@ export default class GameContainer extends Component<
             this.setState({ isSaved: true });
             // console.log("game saved");
         }
+    }
+
+    protected async getSigningStargateClient(): Promise<CreatorInfo> {
+        if (this.state.creator && this.state.signingClient)
+            return {
+                creator: this.state.creator,
+                signingClient: this.state.signingClient,
+            };
+        const { keplr } = window;
+        if (!keplr) {
+            alert("You need to install Keplr");
+            throw new Error("You need to install Keplr");
+        }
+        await keplr.experimentalSuggestChain(getCheckersChainInfo());
+        const offlineSigner: OfflineSigner =
+            keplr.getOfflineSigner!(checkersChainId);
+        const creator = (await offlineSigner.getAccounts())[0].address;
+        const client: CheckersSigningStargateClient =
+            await CheckersSigningStargateClient.connectWithSigner(
+                this.props.rpcUrl,
+                offlineSigner,
+                {
+                    gasPrice: GasPrice.fromString("1stake"),
+                }
+            );
+        this.setState({ creator: creator, signingClient: client });
+        return { creator: creator, signingClient: client };
     }
 }
