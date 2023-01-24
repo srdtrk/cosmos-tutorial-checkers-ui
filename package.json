@@ -9,7 +9,8 @@
         "test-react": "react-app-rewired test",
         "eject": "react-scripts eject",
         "deploy": "ren .\\build\\index.html 200.html & surge .\\build",
-        "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha --require ts-node/register 'test/**/*.ts'"
+        "test": "env TS_NODE_COMPILER_OPTIONS='{\"module\": \"commonjs\" }' mocha --require ts-node/register 'test/**/*.ts'",
+        "indexer-dev": "npx ts-node src/server/index.ts"
     },
     "repository": {
         "type": "git",
