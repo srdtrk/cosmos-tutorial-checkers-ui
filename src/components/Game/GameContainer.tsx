@@ -195,7 +195,7 @@ export default class GameContainer extends Component<
         selected[`${row},${col}`] = true;
         this.setState({ selected });
     }
-    public makeMove(): void {
+    public async makeMove(): Promise<void> {
         if (this.state.locked && !this.currentPlayerIsAI()) {
             return;
         }
@@ -204,50 +204,36 @@ export default class GameContainer extends Component<
             return;
         }
 
-        const move: Position[] = keys.map(
+        const positions: Position[] = keys.map(
             (k: string): Position => k.split(",").map(Number) as Position
         );
-        const board: MoveTree = this.state.board.getResultingTree(
-            move
-        ) as MoveTree;
-        const player: Player = this.state.board.current_player;
-        const selected = Object.create(null);
 
-        if (board !== null) {
-            this.setState({ board, locked: false }, () => {
-                // check for a change in a player's score
-                // and save the game
-                if (player === 1) {
-                    const p1: IPlayerInfo = this.state.p1 as IPlayerInfo;
-                    p1.score = this.getScore(player);
-                    this.setState({ p1 }, this.saveGame);
-                } else if (player === 2) {
-                    const p2: IPlayerInfo = this.state.p2 as IPlayerInfo;
-                    p2.score = this.getScore(player);
-                    this.setState({ p2 }, this.saveGame);
-                } else {
-                    this.saveGame();
-                }
-                if (board.game_over) {
-                    this.setState({ gameOver: true });
-                } else {
-                    // check if the AI needs to make a move
-                    if (this.currentPlayerIsAI()) {
-                        this.state.board
-                            .getBestMove()
-                            .forEach(
-                                ([row, col]) =>
-                                    (selected[`${row},${col}`] = true)
-                            );
-                        this.setState({ selected, locked: true }, () => {
-                            window.setTimeout(this.makeMove.bind(this), 750);
-                        });
-                    }
-                }
-            });
+        const client = await this.getStargateClient();
+        const canPlayOrNot = await client.canPlayGuiMove(
+            this.props.index,
+            this.state.board.current_player,
+            positions
+        );
+        if (!canPlayOrNot.possible) {
+            const error = `Cannot make this move ${canPlayOrNot.reason}`;
+            alert(error);
+            throw new Error(error);
         }
-        // console.log(JSON.stringify(selected));
+        const { creator, signingClient } =
+            await this.getSigningStargateClient();
+        try {
+            await signingClient.playGuiMoves(
+                creator,
+                this.props.index,
+                positions
+            );
+        } catch (e) {
+            console.error(e);
+            alert("Failed to play: " + e);
+        }
+        const selected = Object.create(null);
         this.setState({ selected });
+        return this.loadGame();
     }
     public render() {
         let winner: string = "";
